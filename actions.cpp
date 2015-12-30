@@ -23,17 +23,19 @@ namespace client {
 namespace qi = boost::spirit::qi;
 
 // A plain function
-void print(int const &i) { std::cout << i << std::endl; }
+void print(int const &i) { std::cout << "plain function " << i << std::endl; }
 
 // A member function
 struct writer {
-  void print(int const &i) const { std::cout << i << std::endl; }
+  void print(int const &i) const {
+    std::cout << "member function " << i << std::endl;
+  }
 };
 
 // A function object
 struct print_action {
   void operator()(int const &i, qi::unused_type, qi::unused_type) const {
-    std::cout << i << std::endl;
+    std::cout << "function object " << i << std::endl;
   }
 };
 }
@@ -85,7 +87,8 @@ int main() {
     char const *first = "{45}", *last = first + std::strlen(first);
     using lambda::_1;
     //[tutorial_attach_actions5
-    parse(first, last, '{' >> int_[std::cout << _1 << '\n'] >> '}');
+    parse(first, last,
+          '{' >> int_[std::cout << "lambda " << _1 << '\n'] >> '}');
     //]
   }
 
