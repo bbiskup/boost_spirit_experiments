@@ -1,7 +1,8 @@
 project(boost_spirit_experiments)
 cmake_minimum_required(VERSION 2.8)
 aux_source_directory(. SRC_LIST)
-add_executable(${PROJECT_NAME} ${SRC_LIST})
+add_executable(num_list num_list.cpp)
+add_executable(actions actions.cpp)
 
 
 # clang settings
@@ -14,6 +15,5 @@ find_package (Boost COMPONENTS
     system
  REQUIRED)
 
- target_link_libraries(${PROJECT_NAME}
-                      ${Boost_LIBRARIES}
-                      )
+ target_link_libraries(num_list ${Boost_LIBRARIES})
+ target_link_libraries(actions ${Boost_LIBRARIES})
