@@ -16,4 +16,17 @@ void prog_lexeme() {
   }
 }
 
-int main() { prog_lexeme(); }
+void prog_plus() {
+  std::string s;
+  std::getline(std::cin, s);
+  auto it = s.begin();
+  bool match = qi::phrase_parse(it, s.end(), +ascii::digit, ascii::space);
+  std::cout << std::boolalpha << match << std::endl;
+  if (it != s.end()) {
+    std::cout << std::string{it, s.end()} << std::endl;
+  }
+}
+
+int main() {  // prog_lexeme();
+  prog_plus();
+}
