@@ -4,7 +4,7 @@
 
 using namespace boost::spirit;
 
-int main() {
+void prog_lexeme() {
   std::string s;
   std::getline(std::cin, s);
   auto it = s.begin();
@@ -15,3 +15,5 @@ int main() {
     std::cout << std::string{it, s.end()} << std::endl;
   }
 }
+
+int main() { prog_lexeme(); }
