@@ -97,7 +97,7 @@ void prog_attribute() {
   std::getline(std::cin, s);
   auto it = s.begin();
   std::vector<int> m;
-  bool match = qi::phrase_parse(it, s.end(), +qi::int_, ascii::space, m);
+  bool match = qi::phrase_parse(it, s.end(), qi::int_ % ",", ascii::space, m);
   // std::cout << "m: " << m << std::endl;
   for (auto x : m) {
     std::cout << "x: " << x << std::endl;
