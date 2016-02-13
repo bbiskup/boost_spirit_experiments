@@ -38,4 +38,15 @@ void prog_int() {
   }
 }
 
-int main() { prog_int(); }
+void prog_float() {
+  std::string s;
+  std::getline(std::cin, s);
+  auto it = s.begin();
+  bool match = qi::phrase_parse(it, s.end(), +qi::float_, ascii::space);
+  std::cout << std::boolalpha << match << std::endl;
+  if (it != s.end()) {
+    std::cout << std::string{it, s.end()} << std::endl;
+  }
+}
+
+int main() { prog_float(); }
