@@ -92,4 +92,21 @@ void prog_phoenix_action() {
   }
 }
 
-int main() { prog_phoenix_action(); }
+void prog_attribute() {
+  std::string s;
+  std::getline(std::cin, s);
+  auto it = s.begin();
+  std::vector<int> m;
+  bool match = qi::phrase_parse(it, s.end(), +qi::int_, ascii::space, m);
+  // std::cout << "m: " << m << std::endl;
+  for (auto x : m) {
+    std::cout << "x: " << x << std::endl;
+  }
+
+  std::cout << std::boolalpha << match << std::endl;
+  if (it != s.end()) {
+    std::cout << std::string{it, s.end()} << std::endl;
+  }
+}
+
+int main() { prog_attribute(); }
