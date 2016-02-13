@@ -3,6 +3,9 @@
 #include <boost/phoenix/phoenix.hpp>
 #include <string>
 #include <iostream>
+#include <iterator>
+#include <vector>
+#include <algorithm>
 
 using namespace boost::spirit;
 using boost::phoenix::ref;
@@ -98,10 +101,14 @@ void prog_attribute() {
   auto it = s.begin();
   std::vector<int> m;
   bool match = qi::phrase_parse(it, s.end(), qi::int_ % ",", ascii::space, m);
-  // std::cout << "m: " << m << std::endl;
-  for (auto x : m) {
-    std::cout << "x: " << x << std::endl;
-  }
+
+  // for (auto x : m) {
+  //   std::cout << "x: " << x << std::endl;
+  // }
+
+  std::ostream_iterator<int> out{std::cout, ";"};
+  std::copy(m.begin(), m.end(), out);
+  std::cout << std::endl;
 
   std::cout << std::boolalpha << match << std::endl;
   if (it != s.end()) {
