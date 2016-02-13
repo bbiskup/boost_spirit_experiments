@@ -4,6 +4,9 @@ aux_source_directory(. SRC_LIST)
 add_executable(num_list num_list.cpp)
 add_executable(actions actions.cpp)
 add_executable(complex_number complex_number.cpp)
+add_executable(num_list2 num_list2.cpp)
+add_executable(roman roman.cpp)
+add_executable(boost_book boost_book.cpp)
 
 
 # clang settings
@@ -19,3 +22,6 @@ find_package (Boost COMPONENTS
  target_link_libraries(num_list ${Boost_LIBRARIES})
  target_link_libraries(actions ${Boost_LIBRARIES})
  target_link_libraries(complex_number ${Boost_LIBRARIES})
+ target_link_libraries(num_list2 ${Boost_LIBRARIES})
+ target_link_libraries(roman ${Boost_LIBRARIES})
+ target_link_libraries(boost_book ${Boost_LIBRARIES})
