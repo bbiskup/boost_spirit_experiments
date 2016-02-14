@@ -30,6 +30,11 @@ struct Mnemonics : qi::symbols<char, Mnemonic> {
   }
 };
 
+// Custom skipper for comments
+// see http://stackoverflow.com/a/8534840
+// template<typename Iterator>
+// struct CommentSkiper : qi
+
 int main() {
   ifstream ifs{"asm_example_1.asm"};
   string prog_str{istreambuf_iterator<char>(ifs), istreambuf_iterator<char>()};
@@ -46,6 +51,9 @@ int main() {
   auto it = tmp.begin();
   auto end = tmp.end();
   string comment_str;
+
+  qi::debug(comment);
+
   bool match = qi::phrase_parse(it, end, comment, ascii::space, comment_str);
   cout << "match? " << boolalpha << match << endl;
 
