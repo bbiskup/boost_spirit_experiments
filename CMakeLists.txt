@@ -7,6 +7,7 @@ add_executable(complex_number complex_number.cpp)
 add_executable(num_list2 num_list2.cpp)
 add_executable(roman roman.cpp)
 add_executable(boost_book boost_book.cpp)
+add_executable(c64assembler c64assembler.cpp)
 
 
 # clang settings
@@ -25,3 +26,4 @@ find_package (Boost COMPONENTS
  target_link_libraries(num_list2 ${Boost_LIBRARIES})
  target_link_libraries(roman ${Boost_LIBRARIES})
  target_link_libraries(boost_book ${Boost_LIBRARIES})
+ target_link_libraries(c64assembler ${Boost_LIBRARIES})
