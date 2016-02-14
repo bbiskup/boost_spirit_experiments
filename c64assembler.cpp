@@ -34,9 +34,10 @@ struct Mnemonics_ : qi::symbols<char, Mnemonic> {
 // see http://stackoverflow.com/a/8534840 about customer skippers
 template <typename Iterator>
 struct CommentSkipper : qi::grammar<Iterator> {
-  CommentSkipper() : CommentSkipper::base_type{skip} {
+  CommentSkipper() : CommentSkipper::base_type{skip, "skip"} {
     skip = ascii::space | (qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol);
-    // qi::debug(skip);
+    skip.name("skip");
+    qi::debug(skip);
   }
   qi::rule<Iterator> skip;
 };
@@ -44,15 +45,22 @@ struct CommentSkipper : qi::grammar<Iterator> {
 // Grammar for parsing C64 assembly language
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
 struct AsmGrammar : public qi::grammar<Iterator, string(), Skipper> {
-  AsmGrammar() : AsmGrammar::base_type{line} { line = +qi::char_ - qi::eol; }
+  AsmGrammar() : AsmGrammar::base_type{line} {
+    line = +qi::char_ - qi::eol;
+    line.name("line");
+    qi::debug(line);
+  }
   qi::rule<Iterator, string(), Skipper> line;
 };
 
 // Fragment for testing symbol table
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
 struct MnemonicGrammarFragment : public qi::grammar<Iterator, Skipper> {
-  MnemonicGrammarFragment() : MnemonicGrammarFragment::base_type{mnemo} {
+  MnemonicGrammarFragment()
+      : MnemonicGrammarFragment::base_type{mnemo, "mnemo"} {
     mnemo = Mnemonics;
+    mnemo.name("mnemo");
+    qi::debug(mnemo);
   }
   qi::rule<Iterator, Skipper> mnemo;
 };
