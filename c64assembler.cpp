@@ -54,7 +54,11 @@ struct AsmGrammar : public qi::grammar<Iterator, string(), Skipper> {
 };
 
 void print_mnemo(const char* mnemo) {
-  cout << "deteced mnemo: " << mnemo << endl;
+  cout << "DETECTED mnemo: " << mnemo << endl;
+}
+
+void print_addr_spec(unsigned int addr_spec) {
+  cout << "DETECTED addr_spec: " << addr_spec << endl;
 }
 
 // Fragment for testing symbol table
@@ -66,6 +70,24 @@ struct MnemonicGrammarFragment : public qi::grammar<Iterator, Skipper> {
     qi::debug(mnemo);
   }
   qi::rule<Iterator, Skipper> mnemo;
+};
+
+// Fragment for parsing line
+template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
+struct LineGrammarFragment : public qi::grammar<Iterator, Skipper> {
+  LineGrammarFragment() : LineGrammarFragment::base_type{line} {
+    mnemo.name("mnemo");
+    line.name("line");
+    addr_spec.name("addr_spec");
+    // addr_spec[&print_addr_spec];
+
+    qi::debug(line);
+  }
+  qi::rule<Iterator, Skipper> mnemo = Mnemonics[&print_mnemo];
+  qi::rule<Iterator, Skipper> addr_spec =
+      qi::char_('*') >>
+      qi::char_('=') >> qi::lexeme[qi::char_('$') >> qi::hex[&print_addr_spec]];
+  qi::rule<Iterator, Skipper> line = addr_spec;
 };
 
 int main() {
@@ -80,14 +102,14 @@ int main() {
   // qi::rule<std::string::iterator, string(), ascii::space_type> comment =
   //    qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol;
   //;
-  string prog_fragment = "LDA; hier";
+  string prog_fragment = "* = $c000; hier";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
 
   typedef string::iterator iterator_t;
   // typedef AsmGrammar<iterator_t> grammar;
-  typedef MnemonicGrammarFragment<iterator_t> grammar;
+  typedef LineGrammarFragment<iterator_t> grammar;
   typedef CommentSkipper<iterator_t> skipper;
 
   grammar g;
