@@ -17,11 +17,12 @@ const char COMMENT_CHAR{';'};
 typedef const char* Mnemonic;
 Mnemonic LDA = "LDA";
 Mnemonic STA = "STA";
+Mnemonic INX = "INX";
 
 struct Mnemonics_ : qi::symbols<char, Mnemonic> {
   Mnemonics_() {
     // we need to add symbols dynamically
-    for (const auto& elem : {LDA, STA}) {
+    for (const auto& elem : {LDA, STA, INX}) {
       add(elem, elem);
     }
   }
@@ -74,7 +75,7 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     instr_arg_immediate.name("instr_arg_immediate");
     qi::debug(instr_arg_immediate);
 
-    instr_arg = instr_arg_absolute | instr_arg_immediate;
+    instr_arg = instr_arg_absolute | instr_arg_immediate | instr_arg_implicit;
 
     instr = mnemo >> instr_arg;
     instr.name("instr");
@@ -116,8 +117,9 @@ int main() {
   cout << "-----------------" << endl;
 
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
-  string prog_fragment =
-      "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
+  // string prog_fragment =
+  //     "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
+  string prog_fragment = "* = $c000\nINX\nSTA $e000\nLDA $ff\n";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
