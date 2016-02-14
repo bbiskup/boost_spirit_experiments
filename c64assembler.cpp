@@ -59,14 +59,13 @@ void print_mnemo(const char* mnemo) {
 
 // Fragment for testing symbol table
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
-struct MnemonicGrammarFragment
-    : public qi::grammar<Iterator, string(), Skipper> {
+struct MnemonicGrammarFragment : public qi::grammar<Iterator, Skipper> {
   MnemonicGrammarFragment() : MnemonicGrammarFragment::base_type{mnemo} {
     mnemo = Mnemonics[&print_mnemo];
     mnemo.name("mnemo");
     qi::debug(mnemo);
   }
-  qi::rule<Iterator, string(), Skipper> mnemo;
+  qi::rule<Iterator, Skipper> mnemo;
 };
 
 int main() {
@@ -95,7 +94,7 @@ int main() {
   skipper sk;
 
   // bool match = qi::phrase_parse(it, end, g, sk, result_str);
-  bool match = qi::phrase_parse(it, end, Mnemonics[&print_mnemo], sk);
+  bool match = qi::phrase_parse(it, end, g, sk);
   cout << "match? " << boolalpha << match << endl;
   cout << "result_str " << result_str << endl;
 
