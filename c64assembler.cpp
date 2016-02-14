@@ -25,7 +25,7 @@ struct Mnemonics_ : qi::symbols<char, Mnemonic> {
   Mnemonics_() {
     // we need to add symbols dynamically
     for (const auto& elem : {LDA, STA}) {
-      add(elem);  // TODO call with same elem twice, or is once equivalent?
+      add(elem, elem);
     }
   }
 } Mnemonics;
@@ -34,7 +34,7 @@ struct Mnemonics_ : qi::symbols<char, Mnemonic> {
 // see http://stackoverflow.com/a/8534840 about customer skippers
 template <typename Iterator>
 struct CommentSkipper : qi::grammar<Iterator> {
-  CommentSkipper() : CommentSkipper::base_type{skip, "skip"} {
+  CommentSkipper() : CommentSkipper::base_type{skip} {
     skip = ascii::space | (qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol);
     skip.name("skip");
     qi::debug(skip);
@@ -53,16 +53,20 @@ struct AsmGrammar : public qi::grammar<Iterator, string(), Skipper> {
   qi::rule<Iterator, string(), Skipper> line;
 };
 
+void print_mnemo(const char* mnemo) {
+  cout << "deteced mnemo: " << mnemo << endl;
+}
+
 // Fragment for testing symbol table
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
-struct MnemonicGrammarFragment : public qi::grammar<Iterator, Skipper> {
-  MnemonicGrammarFragment()
-      : MnemonicGrammarFragment::base_type{mnemo, "mnemo"} {
-    mnemo = Mnemonics;
+struct MnemonicGrammarFragment
+    : public qi::grammar<Iterator, string(), Skipper> {
+  MnemonicGrammarFragment() : MnemonicGrammarFragment::base_type{mnemo} {
+    mnemo = Mnemonics[&print_mnemo];
     mnemo.name("mnemo");
     qi::debug(mnemo);
   }
-  qi::rule<Iterator, Skipper> mnemo;
+  qi::rule<Iterator, string(), Skipper> mnemo;
 };
 
 int main() {
@@ -91,7 +95,7 @@ int main() {
   skipper sk;
 
   // bool match = qi::phrase_parse(it, end, g, sk, result_str);
-  bool match = qi::phrase_parse(it, end, g, sk);
+  bool match = qi::phrase_parse(it, end, Mnemonics[&print_mnemo], sk);
   cout << "match? " << boolalpha << match << endl;
   cout << "result_str " << result_str << endl;
 
