@@ -59,6 +59,7 @@ void print_mnemo(const char* mnemo) {
 }
 
 void print_line() { cout << "DETECTED line" << endl; }
+void print_lines() { cout << "DETECTED lines" << endl; }
 
 void print_addr_spec(unsigned int addr_spec) {
   cout << "DETECTED addr_spec: " << addr_spec << endl;
@@ -115,7 +116,8 @@ struct LineGrammarFragment : public qi::grammar<Iterator, Skipper> {
 
   qi::rule<Iterator, Skipper> instr = mnemo >> instr_arg;
   qi::rule<Iterator, Skipper> line = instr | addr_spec;
-  qi::rule<Iterator, Skipper> lines = line[&print_line] % '\n';
+  qi::rule<Iterator, Skipper> lines =
+      ((line[&print_line] % qi::eol) >> *qi::char_('\n'))[&print_lines];
 };
 
 int main() {
@@ -132,7 +134,7 @@ int main() {
   //;
   // string prog_fragment = "* = $c000; hier";
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
-  string prog_fragment = "STA $a000\nSTA $e000\nLDA $ff\n";
+  string prog_fragment = "\n\nSTA $a000\nSTA $e000\nLDA $ff";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
@@ -147,7 +149,7 @@ int main() {
 
   // bool match = qi::phrase_parse(it, end, g, sk, result_str);
 
-  bool match = qi::phrase_parse(it, end, g, sk);
+  bool match = qi::phrase_parse(it, end, g, sk, qi::skip_flag::postskip);
   cout << "match? " << boolalpha << match << endl;
   // cout << "result_str " << result_str << endl;
 
