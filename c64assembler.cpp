@@ -83,7 +83,7 @@ int main() {
   skipper sk;
 
   // bool match = qi::phrase_parse(it, end, g, sk, result_str);
-  bool match = qi::phrase_parse(it, end, g, sk, result_str);
+  bool match = qi::phrase_parse(it, end, Mnemonics, sk);
   cout << "match? " << boolalpha << match << endl;
   cout << "result_str " << result_str << endl;
 
