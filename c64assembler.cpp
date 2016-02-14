@@ -114,8 +114,6 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
   qi::rule<Iterator, Skipper> mnemo;
   qi::rule<Iterator, Skipper> addr_spec;
 
-  //
-
   // absolute addressing mode, e.g. LDA $d000
   qi::rule<Iterator, Skipper> instr_arg_absolute;
 
@@ -136,7 +134,6 @@ int main() {
   cout << "Prog: " << prog_str << endl;
   cout << "-----------------" << endl;
 
-  // string prog_fragment = "* = $c000; hier";
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
   string prog_fragment = "\n\n* = $c000\nSTA $a000\nSTA $e000\nLDA $ff\n";
   auto it = prog_fragment.begin();
