@@ -31,7 +31,7 @@ template <typename Iterator>
 struct CommentSkipper : qi::grammar<Iterator> {
   CommentSkipper() : CommentSkipper::base_type{skip} {
     // TODO reactivate skipping comments
-    skip = ascii::space | (qi::char_(COMMENT_CHAR) >> +(qi::char_ - '\n'));
+    skip = ascii::blank | (qi::char_(COMMENT_CHAR) >> +(qi::char_ - '\n'));
     skip.name("skip");
     qi::debug(skip);
   }
@@ -104,7 +104,7 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     var_assignment.name("var_assignment");
     debug(var_assignment);
 
-    line = instr | addr_spec | var_assignment;
+    line = (instr | addr_spec | var_assignment) >> *qi::eol;
     line.name("line");
     qi::debug(line);
   }
@@ -154,16 +154,15 @@ int main() {
   // string prog_fragment =
   //     "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
   string prog_fragment =
-      //"* = $c000\n"
-      //"ABC = $a000\n"
+      "* = $c000\n"
+      "ABC = $a000\n"
       "inx\n"
       "sta $e000\n"
       "sta ABC\n"
       "lda #$ff\n"
-      //"lda $cfff, X\n"
-      //"lda "
-      //"$ce00, Y"
-      ;
+      "lda $cfff, X\n"
+      "lda "
+      "$ce00, Y";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
