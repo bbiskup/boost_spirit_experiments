@@ -141,6 +141,8 @@ void prog_visitor() {
   }
 }
 
+// ------------------------------------------------- grammar
+
 template <typename Iterator, typename Skipper>
 struct my_grammar
     : qi::grammar<Iterator, std::vector<boost::variant<int, bool>>(), Skipper> {
@@ -166,6 +168,8 @@ void prog_grammar() {
     }
   }
 }
+
+// ------------------------------------------------- parse to struct
 
 typedef boost::variant<int, bool> int_or_bool;
 
