@@ -12,9 +12,6 @@ using std::istreambuf_iterator;
 
 using namespace boost::spirit;
 
-// template <typename Iterator, typename Skipper>
-//    struct AsmGrammar : qi::grammar <
-
 const char COMMENT_CHAR{';'};
 
 typedef const char* Mnemonic;
@@ -114,7 +111,7 @@ int main() {
 
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
   string prog_fragment =
-      "\n\n* = $c000; comment 1\nSTA $a000\nSTA $e000\nLDA $ff\n";
+      "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
@@ -129,9 +126,9 @@ int main() {
   while (it != end) {
     bool match = qi::phrase_parse(it, end, g, sk, qi::skip_flag::postskip);
     cout << "match? " << boolalpha << match << endl;
-    cout << "Remaining (unparsed) text:" << endl;
-    if (it != end) {
-      std::cout << std::string{it, end} << std::endl;
-    }
+    // cout << "Remaining (unparsed) text:" << endl;
+    // if (it != end) {
+    //   std::cout << std::string{it, end} << std::endl;
+    // }
   }
 }
