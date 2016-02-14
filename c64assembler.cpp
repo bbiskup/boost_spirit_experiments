@@ -35,22 +35,22 @@ int main() {
   string prog_str{istreambuf_iterator<char>(ifs), istreambuf_iterator<char>()};
 
   cout << "Prog: " << prog_str << endl;
+  cout << "-----------------" << endl;
 
   // auto it = prog_str.begin();
-  // qi::rule<std::string::iterator, qi::space_type> comment =
-  //    qi::char_(COMMENT_CHAR) >> qi::char_ >> qi::eol;
+
   qi::rule<std::string::iterator, string(), ascii::space_type> comment =
-      qi::char_(COMMENT_CHAR) >> +qi::char_ >> qi::eol;
+      qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol;
   ;
   string tmp = "; hier";
   auto it = tmp.begin();
   auto end = tmp.end();
   string comment_str;
   bool match = qi::phrase_parse(it, end, comment, ascii::space, comment_str);
-  // cout << "match? " << boolalpha << match << endl;
+  cout << "match? " << boolalpha << match << endl;
 
-  // // output remaining text
-  // if (it != end) {
-  //   std::cout << std::string{it, end} << std::endl;
-  // }
+  // output remaining text
+  if (it != end) {
+    std::cout << std::string{it, end} << std::endl;
+  }
 }
