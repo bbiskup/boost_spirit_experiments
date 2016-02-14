@@ -72,6 +72,8 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     instr_arg_immediate.name("instr_arg_immediate");
     qi::debug(instr_arg_immediate);
 
+    // instr_arg_implicit must be checked last, otherwise only the mnemonic
+    // of an instruction with argument will be parsed
     instr_arg = instr_arg_absolute | instr_arg_immediate | instr_arg_implicit;
 
     instr = mnemo >> instr_arg;
