@@ -134,7 +134,7 @@ int main() {
   //;
   // string prog_fragment = "* = $c000; hier";
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
-  string prog_fragment = "\n\nSTA $a000\nSTA $e000\nLDA $ff";
+  string prog_fragment = "\n\nSTA $a000\nSTA $e000\nLDA $ff\n";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
