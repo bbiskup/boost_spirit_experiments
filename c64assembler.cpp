@@ -54,17 +54,6 @@ void print_addr_spec(unsigned int addr_spec) {
   cout << "DETECTED addr_spec: " << addr_spec << endl;
 }
 
-// // Fragment for testing symbol table
-// template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
-// struct MnemonicGrammarFragment : public qi::grammar<Iterator, Skipper> {
-//   MnemonicGrammarFragment() : MnemonicGrammarFragment::base_type{mnemo} {
-//     mnemo = Mnemonics[&print_mnemo];
-//     mnemo.name("mnemo");
-//     qi::debug(mnemo);
-//   }
-//   qi::rule<Iterator, Skipper> mnemo;
-// };
-
 // Fragment for parsing line
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
 struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
