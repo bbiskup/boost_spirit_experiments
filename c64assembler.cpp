@@ -76,9 +76,13 @@ struct MnemonicGrammarFragment : public qi::grammar<Iterator, Skipper> {
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
 struct LineGrammarFragment : public qi::grammar<Iterator, Skipper> {
   LineGrammarFragment() : LineGrammarFragment::base_type{line} {
-    mnemo.name("mnemo");
     line.name("line");
+    mnemo.name("mnemo");
     addr_spec.name("addr_spec");
+    instr.name("instr");
+    instr_arg_immediate.name("instr_arg_immediate");
+    instr_arg_absolute.name("instr_arg_absolute");
+
     // addr_spec[&print_addr_spec];
 
     qi::debug(line);
@@ -86,6 +90,7 @@ struct LineGrammarFragment : public qi::grammar<Iterator, Skipper> {
     qi::debug(addr_spec);
     qi::debug(instr);
     qi::debug(instr_arg_immediate);
+    qi::debug(instr_arg_absolute);
   }
   qi::rule<Iterator, Skipper> mnemo = Mnemonics[&print_mnemo];
   qi::rule<Iterator, Skipper> addr_spec =
@@ -121,7 +126,7 @@ int main() {
   //    qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol;
   //;
   // string prog_fragment = "* = $c000; hier";
-  string prog_fragment = "LDA #$a0; hier";
+  string prog_fragment = "LDA $a0; hier";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
