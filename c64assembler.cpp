@@ -160,9 +160,10 @@ int main() {
       "sta $e000\n"
       "sta ABC\n"
       "lda #$ff\n"
+      "lda #ABC\n"
       "lda $cfff, X\n"
-      "lda "
-      "$ce00, Y";
+      "lda $ce00, Y\n"
+      "lda ABC, Y";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
