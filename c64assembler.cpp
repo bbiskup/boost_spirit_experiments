@@ -35,7 +35,8 @@ struct Mnemonics_ : qi::symbols<char, Mnemonic> {
 template <typename Iterator>
 struct CommentSkipper : qi::grammar<Iterator> {
   CommentSkipper() : CommentSkipper::base_type{skip} {
-    skip = ascii::space | (qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol);
+    // TODO reactivate skipping comments
+    skip = ascii::space | (qi::char_(COMMENT_CHAR) >> +(qi::char_ - '\n'));
     skip.name("skip");
     qi::debug(skip);
   }
@@ -57,6 +58,8 @@ void print_mnemo(const char* mnemo) {
   cout << "DETECTED mnemo: " << mnemo << endl;
 }
 
+void print_line() { cout << "DETECTED line" << endl; }
+
 void print_addr_spec(unsigned int addr_spec) {
   cout << "DETECTED addr_spec: " << addr_spec << endl;
 }
@@ -75,8 +78,9 @@ struct MnemonicGrammarFragment : public qi::grammar<Iterator, Skipper> {
 // Fragment for parsing line
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
 struct LineGrammarFragment : public qi::grammar<Iterator, Skipper> {
-  LineGrammarFragment() : LineGrammarFragment::base_type{line} {
+  LineGrammarFragment() : LineGrammarFragment::base_type{lines} {
     line.name("line");
+    lines.name("lines");
     mnemo.name("mnemo");
     addr_spec.name("addr_spec");
     instr.name("instr");
@@ -111,6 +115,7 @@ struct LineGrammarFragment : public qi::grammar<Iterator, Skipper> {
 
   qi::rule<Iterator, Skipper> instr = mnemo >> instr_arg;
   qi::rule<Iterator, Skipper> line = instr | addr_spec;
+  qi::rule<Iterator, Skipper> lines = line[&print_line] % '\n';
 };
 
 int main() {
@@ -126,7 +131,8 @@ int main() {
   //    qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol;
   //;
   // string prog_fragment = "* = $c000; hier";
-  string prog_fragment = "LDA $a0; hier";
+  // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
+  string prog_fragment = "STA $a000\nSTA $e000\nLDA $ff\n";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
@@ -140,11 +146,12 @@ int main() {
   skipper sk;
 
   // bool match = qi::phrase_parse(it, end, g, sk, result_str);
+
   bool match = qi::phrase_parse(it, end, g, sk);
   cout << "match? " << boolalpha << match << endl;
-  cout << "result_str " << result_str << endl;
+  // cout << "result_str " << result_str << endl;
 
-  // output remaining text
+  cout << "Remaining (unparsed) text:" << endl;
   if (it != end) {
     std::cout << std::string{it, end} << std::endl;
   }
