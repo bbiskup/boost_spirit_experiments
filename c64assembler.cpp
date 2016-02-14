@@ -94,11 +94,6 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     line = instr | addr_spec;
     line.name("line");
     qi::debug(line);
-
-    // lines = ((line[&print_line] % qi::eol) >>
-    // *qi::char_('\n'))[&print_lines];
-    // lines.name("lines");
-    // qi::debug(lines);
   }
   qi::rule<Iterator, Skipper> mnemo;
   qi::rule<Iterator, Skipper> addr_spec;
@@ -137,7 +132,7 @@ int main() {
   // string prog_fragment =
   //     "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
   string prog_fragment =
-      "* = $c000\nINX\nSTA $e000\nLDA $ff\nLDA $cfff, X\nLDA $ce00, Y";
+      "* = $c000\nINX\nSTA $e000\nLDA #$ff\nLDA $cfff, X\nLDA $ce00, Y";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
