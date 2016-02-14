@@ -12,7 +12,7 @@ add_executable(c64assembler c64assembler.cpp)
 
 # clang settings
 set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall -O3")
+set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall -O0")
 set(CMAKE_EXE_LINKER_FLAGS "")
 
 

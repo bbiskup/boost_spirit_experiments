@@ -19,7 +19,7 @@ typedef const char* Mnemonic;
 struct Mnemonics_ : qi::symbols<char, Mnemonic> {
   Mnemonics_() {
     // we need to add symbols dynamically
-    for (const auto& elem : {"LDA", "STA", "INX"}) {
+    for (const auto& elem : {"lda", "sta", "inx"}) {
       add(elem, elem);
     }
   }
@@ -62,23 +62,29 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     addr_spec.name("addr_spec");
     qi::debug(addr_spec);
 
+    identifier = qi::repeat(1, 32)[qi::upper];
+    identifier.name("identifier");
+    qi::debug(identifier);
+    hex_num = qi::lexeme[qi::char_('$') >> qi::hex];
+    addr_arg = hex_num | identifier;
+
     instr_arg_implicit = qi::eps;
 
-    instr_arg_absolute_x = qi::char_('$') >> qi::hex >> qi::char_(',') >>
-                           qi::no_case[qi::char_('x')];
+    instr_arg_absolute_x =
+        addr_arg >> qi::char_(',') >> qi::no_case[qi::char_('x')];
     instr_arg_absolute_x.name("instr_arg_absolute_x");
     qi::debug(instr_arg_absolute_x);
 
-    instr_arg_absolute_y = qi::char_('$') >> qi::hex >> qi::char_(',') >>
-                           qi::no_case[qi::char_('y')];
+    instr_arg_absolute_y =
+        addr_arg >> qi::char_(',') >> qi::no_case[qi::char_('y')];
     instr_arg_absolute_y.name("instr_arg_absolute_y");
     qi::debug(instr_arg_absolute_y);
 
-    instr_arg_absolute = qi::char_('$') >> qi::hex;
+    instr_arg_absolute = addr_arg;
     instr_arg_absolute.name("instr_arg_absolute");
     qi::debug(instr_arg_absolute);
 
-    instr_arg_immediate = qi::char_('#') >> qi::char_('$') >> qi::hex;
+    instr_arg_immediate = qi::char_('#') >> addr_arg;
     instr_arg_immediate.name("instr_arg_immediate");
     qi::debug(instr_arg_immediate);
 
@@ -86,12 +92,13 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     // of an instruction with argument will be parsed
     instr_arg = instr_arg_absolute_x | instr_arg_absolute_y |
                 instr_arg_absolute | instr_arg_immediate | instr_arg_implicit;
+    instr_arg.name("instr_arg");
+    qi::debug(instr_arg);
 
     instr = mnemo >> instr_arg;
     instr.name("instr");
     qi::debug(instr);
 
-    identifier = qi::repeat(0, 32)[qi::upper];
     var_value = qi::lexeme[qi::char_('$') >> qi::hex];
     var_assignment = identifier >> qi::char_('=') >> var_value;
     var_assignment.name("var_assignment");
@@ -103,6 +110,9 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
   }
   qi::rule<Iterator, Skipper> mnemo;
   qi::rule<Iterator, Skipper> addr_spec;
+
+  qi::rule<Iterator, Skipper> hex_num;
+  qi::rule<Iterator, Skipper> addr_arg;
 
   // e.g. LDA $d000,X
   qi::rule<Iterator, Skipper> instr_arg_absolute_x;
@@ -145,12 +155,13 @@ int main() {
   //     "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
   string prog_fragment =
       //"* = $c000\n"
-      "ABC = $a000\n"
-      //"INX\n"
-      //"STA $e000\n"
-      //"LDA #$ff\n"
-      //"LDA $cfff, X\n"
-      //"LDA "
+      //"ABC = $a000\n"
+      "inx\n"
+      "sta $e000\n"
+      "sta ABC\n"
+      "lda #$ff\n"
+      //"lda $cfff, X\n"
+      //"lda "
       //"$ce00, Y"
       ;
   auto it = prog_fragment.begin();
