@@ -91,7 +91,13 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     instr.name("instr");
     qi::debug(instr);
 
-    line = instr | addr_spec;
+    identifier = qi::alpha >> qi::repeat(0, 31)[qi::alnum];
+    var_value = qi::lexeme[qi::char_('$') >> qi::hex];
+    var_assignment = identifier >> qi::char_('=') >> var_value;
+    var_assignment.name("var_assignment");
+    debug(var_assignment);
+
+    line = instr | addr_spec | var_assignment;
     line.name("line");
     qi::debug(line);
   }
@@ -117,22 +123,36 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
   qi::rule<Iterator, Skipper> instr_arg;
 
   qi::rule<Iterator, Skipper> instr;
+
+  qi::rule<Iterator, Skipper> identifier;
+  qi::rule<Iterator, Skipper> var_value;
+  qi::rule<Iterator, Skipper> var_assignment;
+
   qi::rule<Iterator, Skipper> line;
   qi::rule<Iterator, Skipper> lines;
 };
 
 int main() {
-  ifstream ifs{"asm_example_1.asm"};
-  string prog_str{istreambuf_iterator<char>(ifs), istreambuf_iterator<char>()};
-
-  cout << "Prog: " << prog_str << endl;
-  cout << "-----------------" << endl;
+  // TODO reactivate reading from file
+  // ifstream ifs{"asm_example_1.asm"};
+  // string prog_str{istreambuf_iterator<char>(ifs),
+  // istreambuf_iterator<char>()};
+  // cout << "Prog: " << prog_str << endl;
+  // cout << "-----------------" << endl;
 
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
   // string prog_fragment =
   //     "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
   string prog_fragment =
-      "* = $c000\nINX\nSTA $e000\nLDA #$ff\nLDA $cfff, X\nLDA $ce00, Y";
+      //"* = $c000\n"
+      "abc = $a000\n"
+      //"INX\n"
+      //"STA $e000\n"
+      //"LDA #$ff\n"
+      //"LDA $cfff, X\n"
+      //"LDA "
+      //"$ce00, Y"
+      ;
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
