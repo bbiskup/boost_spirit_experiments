@@ -16,9 +16,14 @@ using namespace boost::spirit;
 
 typedef const char* Mnemonic;
 Mnemonic LDA = "LDA";
+Mnemonic STA = "STA";
 
 struct Mnemonics : qi::symbols<char, Mnemonic> {
-  Mnemonics() { add("LDA", LDA); };
+  Mnemonics() {
+    for (const auto& elem : {LDA, STA}) {
+      add(elem, elem);
+    }
+  }
 };
 
 int main() {
