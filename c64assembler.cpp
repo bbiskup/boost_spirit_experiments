@@ -81,29 +81,35 @@ template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
 struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
   AsmGrammar() : AsmGrammar::base_type{lines} {
     mnemo = Mnemonics[&print_mnemo];
+    mnemo.name("mnemo");
+    qi::debug(mnemo);
+
     addr_spec = qi::char_('*') >> qi::char_('=') >>
                 qi::lexeme[qi::char_('$') >> qi::hex[&print_addr_spec]];
-    instr_arg_absolute = qi::char_('$') >> qi::hex;
-    instr_arg_immediate = qi::char_('#') >> qi::char_('$') >> qi::hex;
-    instr_arg = instr_arg_absolute | instr_arg_immediate;
-    instr = mnemo >> instr_arg;
-    line = instr | addr_spec;
-    lines = ((line[&print_line] % qi::eol) >> *qi::char_('\n'))[&print_lines];
-
-    line.name("line");
-    lines.name("lines");
-    mnemo.name("mnemo");
     addr_spec.name("addr_spec");
-    instr.name("instr");
-    instr_arg_immediate.name("instr_arg_immediate");
-    instr_arg_absolute.name("instr_arg_absolute");
-
-    qi::debug(line);
-    qi::debug(mnemo);
     qi::debug(addr_spec);
-    qi::debug(instr);
-    qi::debug(instr_arg_immediate);
+
+    instr_arg_absolute = qi::char_('$') >> qi::hex;
+    instr_arg_absolute.name("instr_arg_absolute");
     qi::debug(instr_arg_absolute);
+
+    instr_arg_immediate = qi::char_('#') >> qi::char_('$') >> qi::hex;
+    instr_arg_immediate.name("instr_arg_immediate");
+    qi::debug(instr_arg_immediate);
+
+    instr_arg = instr_arg_absolute | instr_arg_immediate;
+
+    instr = mnemo >> instr_arg;
+    instr.name("instr");
+    qi::debug(instr);
+
+    line = instr | addr_spec;
+    line.name("line");
+    qi::debug(line);
+
+    lines = ((line[&print_line] % qi::eol) >> *qi::char_('\n'))[&print_lines];
+    lines.name("lines");
+    qi::debug(lines);
   }
   qi::rule<Iterator, Skipper> mnemo;
   qi::rule<Iterator, Skipper> addr_spec;
