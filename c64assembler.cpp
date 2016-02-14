@@ -91,7 +91,7 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     instr.name("instr");
     qi::debug(instr);
 
-    identifier = qi::alpha >> qi::repeat(0, 31)[qi::alnum];
+    identifier = qi::repeat(0, 32)[qi::upper];
     var_value = qi::lexeme[qi::char_('$') >> qi::hex];
     var_assignment = identifier >> qi::char_('=') >> var_value;
     var_assignment.name("var_assignment");
@@ -145,7 +145,7 @@ int main() {
   //     "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
   string prog_fragment =
       //"* = $c000\n"
-      "abc = $a000\n"
+      "ABC = $a000\n"
       //"INX\n"
       //"STA $e000\n"
       //"LDA #$ff\n"
