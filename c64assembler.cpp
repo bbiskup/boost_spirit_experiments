@@ -80,6 +80,16 @@ void print_addr_spec(unsigned int addr_spec) {
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
 struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
   AsmGrammar() : AsmGrammar::base_type{lines} {
+    mnemo = Mnemonics[&print_mnemo];
+    addr_spec = qi::char_('*') >> qi::char_('=') >>
+                qi::lexeme[qi::char_('$') >> qi::hex[&print_addr_spec]];
+    instr_arg_absolute = qi::char_('$') >> qi::hex;
+    instr_arg_immediate = qi::char_('#') >> qi::char_('$') >> qi::hex;
+    instr_arg = instr_arg_absolute | instr_arg_immediate;
+    instr = mnemo >> instr_arg;
+    line = instr | addr_spec;
+    lines = ((line[&print_line] % qi::eol) >> *qi::char_('\n'))[&print_lines];
+
     line.name("line");
     lines.name("lines");
     mnemo.name("mnemo");
@@ -95,27 +105,22 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     qi::debug(instr_arg_immediate);
     qi::debug(instr_arg_absolute);
   }
-  qi::rule<Iterator, Skipper> mnemo = Mnemonics[&print_mnemo];
-  qi::rule<Iterator, Skipper> addr_spec =
-      qi::char_('*') >>
-      qi::char_('=') >> qi::lexeme[qi::char_('$') >> qi::hex[&print_addr_spec]];
+  qi::rule<Iterator, Skipper> mnemo;
+  qi::rule<Iterator, Skipper> addr_spec;
 
   //
 
   // absolute addressing mode, e.g. LDA $d000
-  qi::rule<Iterator, Skipper> instr_arg_absolute = qi::char_('$') >> qi::hex;
+  qi::rule<Iterator, Skipper> instr_arg_absolute;
 
   // immediate addressing mode, e.g. LDA #$d0
   // TODO enforce two digits or max 0xff
-  qi::rule<Iterator, Skipper> instr_arg_immediate = qi::char_('#') >>
-                                                    qi::char_('$') >> qi::hex;
-  qi::rule<Iterator, Skipper> instr_arg =
-      instr_arg_absolute | instr_arg_immediate;
+  qi::rule<Iterator, Skipper> instr_arg_immediate;
+  qi::rule<Iterator, Skipper> instr_arg;
 
-  qi::rule<Iterator, Skipper> instr = mnemo >> instr_arg;
-  qi::rule<Iterator, Skipper> line = instr | addr_spec;
-  qi::rule<Iterator, Skipper> lines =
-      ((line[&print_line] % qi::eol) >> *qi::char_('\n'))[&print_lines];
+  qi::rule<Iterator, Skipper> instr;
+  qi::rule<Iterator, Skipper> line;
+  qi::rule<Iterator, Skipper> lines;
 };
 
 int main() {
