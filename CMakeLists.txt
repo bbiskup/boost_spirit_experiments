@@ -12,8 +12,8 @@ add_executable(c64assembler c64assembler.cpp)
 
 # clang settings
 set(CMAKE_CXX_COMPILER "clang++")
-set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall -O3 -I/usr/include/SDL2")
-set(CMAKE_EXE_LINKER_FLAGS "-lSDL2 -lSDL2_image")
+set(CMAKE_CXX_FLAGS "-std=c++11 -g -Wall -O3")
+set(CMAKE_EXE_LINKER_FLAGS "")
 
 
 find_package (Boost COMPONENTS 

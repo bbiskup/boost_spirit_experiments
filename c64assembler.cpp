@@ -30,10 +30,23 @@ struct Mnemonics : qi::symbols<char, Mnemonic> {
   }
 };
 
-// Custom skipper for comments
-// see http://stackoverflow.com/a/8534840
-// template<typename Iterator>
-// struct CommentSkiper : qi
+// Custom skipper for comments in assembly language
+// see http://stackoverflow.com/a/8534840 about customer skippers
+template <typename Iterator>
+struct CommentSkipper : qi::grammar<Iterator> {
+  CommentSkipper() : CommentSkipper::base_type{skip} {
+    skip = ascii::space | (qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol);
+    // qi::debug(skip);
+  }
+  qi::rule<Iterator> skip;
+};
+
+// Grammar for parsing C64 assembly language
+template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
+struct AsmGrammar : public qi::grammar<Iterator, string(), Skipper> {
+  AsmGrammar() : AsmGrammar::base_type{line} { line = +qi::char_ - qi::eol; }
+  qi::rule<Iterator, string(), Skipper> line;
+};
 
 int main() {
   ifstream ifs{"asm_example_1.asm"};
@@ -44,18 +57,24 @@ int main() {
 
   // auto it = prog_str.begin();
 
-  qi::rule<std::string::iterator, string(), ascii::space_type> comment =
-      qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol;
-  ;
-  string tmp = "; hier";
-  auto it = tmp.begin();
-  auto end = tmp.end();
-  string comment_str;
+  // qi::rule<std::string::iterator, string(), ascii::space_type> comment =
+  //    qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol;
+  //;
+  string prog_fragment = "abc; hier";
+  auto it = prog_fragment.begin();
+  auto end = prog_fragment.end();
+  string result_str;
 
-  qi::debug(comment);
+  typedef string::iterator iterator_t;
+  typedef AsmGrammar<iterator_t> grammar;
+  typedef CommentSkipper<iterator_t> skipper;
 
-  bool match = qi::phrase_parse(it, end, comment, ascii::space, comment_str);
+  grammar g;
+  skipper sk;
+
+  bool match = qi::phrase_parse(it, end, g, sk, result_str);
   cout << "match? " << boolalpha << match << endl;
+  cout << "result_str " << result_str << endl;
 
   // output remaining text
   if (it != end) {
