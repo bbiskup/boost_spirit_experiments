@@ -15,14 +15,11 @@ using namespace boost::spirit;
 const char COMMENT_CHAR{';'};
 
 typedef const char* Mnemonic;
-Mnemonic LDA = "LDA";
-Mnemonic STA = "STA";
-Mnemonic INX = "INX";
 
 struct Mnemonics_ : qi::symbols<char, Mnemonic> {
   Mnemonics_() {
     // we need to add symbols dynamically
-    for (const auto& elem : {LDA, STA, INX}) {
+    for (const auto& elem : {"LDA", "STA", "INX"}) {
       add(elem, elem);
     }
   }
