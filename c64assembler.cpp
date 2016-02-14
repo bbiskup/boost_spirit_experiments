@@ -54,7 +54,7 @@ void print_addr_spec(unsigned int addr_spec) {
 // Fragment for parsing line
 template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
 struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
-  AsmGrammar() : AsmGrammar::base_type{lines} {
+  AsmGrammar() : AsmGrammar::base_type{line} {
     mnemo = Mnemonics[&print_mnemo];
     mnemo.name("mnemo");
     qi::debug(mnemo);
@@ -63,6 +63,8 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
                 qi::lexeme[qi::char_('$') >> qi::hex[&print_addr_spec]];
     addr_spec.name("addr_spec");
     qi::debug(addr_spec);
+
+    instr_arg_implicit = qi::eps;
 
     instr_arg_absolute = qi::char_('$') >> qi::hex;
     instr_arg_absolute.name("instr_arg_absolute");
@@ -82,17 +84,21 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     line.name("line");
     qi::debug(line);
 
-    lines = ((line[&print_line] % qi::eol) >> *qi::char_('\n'))[&print_lines];
-    lines.name("lines");
-    qi::debug(lines);
+    // lines = ((line[&print_line] % qi::eol) >>
+    // *qi::char_('\n'))[&print_lines];
+    // lines.name("lines");
+    // qi::debug(lines);
   }
   qi::rule<Iterator, Skipper> mnemo;
   qi::rule<Iterator, Skipper> addr_spec;
 
-  // absolute addressing mode, e.g. LDA $d000
+  // e.g. INX
+  qi::rule<Iterator, Skipper> instr_arg_implicit;
+
+  // e.g. LDA $d000
   qi::rule<Iterator, Skipper> instr_arg_absolute;
 
-  // immediate addressing mode, e.g. LDA #$d0
+  // e.g. LDA #$d0
   // TODO enforce two digits or max 0xff
   qi::rule<Iterator, Skipper> instr_arg_immediate;
   qi::rule<Iterator, Skipper> instr_arg;
@@ -125,10 +131,13 @@ int main() {
 
   while (it != end) {
     bool match = qi::phrase_parse(it, end, g, sk, qi::skip_flag::postskip);
-    cout << "match? " << boolalpha << match << endl;
-    // cout << "Remaining (unparsed) text:" << endl;
-    // if (it != end) {
-    //   std::cout << std::string{it, end} << std::endl;
-    // }
+    if (!match) {
+      cout << "!match" << endl;
+      cout << "Remaining (unparsed) text:" << endl;
+      if (it != end) {
+        std::cout << std::string{it, end} << std::endl;
+      }
+      break;
+    }
   }
 }
