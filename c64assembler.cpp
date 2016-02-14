@@ -82,12 +82,30 @@ struct LineGrammarFragment : public qi::grammar<Iterator, Skipper> {
     // addr_spec[&print_addr_spec];
 
     qi::debug(line);
+    qi::debug(mnemo);
+    qi::debug(addr_spec);
+    qi::debug(instr);
+    qi::debug(instr_arg_immediate);
   }
   qi::rule<Iterator, Skipper> mnemo = Mnemonics[&print_mnemo];
   qi::rule<Iterator, Skipper> addr_spec =
       qi::char_('*') >>
       qi::char_('=') >> qi::lexeme[qi::char_('$') >> qi::hex[&print_addr_spec]];
-  qi::rule<Iterator, Skipper> line = addr_spec;
+
+  //
+
+  // absolute addressing mode, e.g. LDA $d000
+  qi::rule<Iterator, Skipper> instr_arg_absolute = qi::char_('$') >> qi::hex;
+
+  // immediate addressing mode, e.g. LDA #$d0
+  // TODO enforce two digits or max 0xff
+  qi::rule<Iterator, Skipper> instr_arg_immediate = qi::char_('#') >>
+                                                    qi::char_('$') >> qi::hex;
+  qi::rule<Iterator, Skipper> instr_arg =
+      instr_arg_absolute | instr_arg_immediate;
+
+  qi::rule<Iterator, Skipper> instr = mnemo >> instr_arg;
+  qi::rule<Iterator, Skipper> line = instr | addr_spec;
 };
 
 int main() {
@@ -102,7 +120,8 @@ int main() {
   // qi::rule<std::string::iterator, string(), ascii::space_type> comment =
   //    qi::char_(COMMENT_CHAR) >> +qi::char_ >> *qi::eol;
   //;
-  string prog_fragment = "* = $c000; hier";
+  // string prog_fragment = "* = $c000; hier";
+  string prog_fragment = "LDA #$a0; hier";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
