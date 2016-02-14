@@ -43,17 +43,6 @@ struct CommentSkipper : qi::grammar<Iterator> {
   qi::rule<Iterator> skip;
 };
 
-// // Grammar for parsing C64 assembly language
-// template <typename Iterator, typename Skipper = CommentSkipper<Iterator>>
-// struct AsmGrammar : public qi::grammar<Iterator, string(), Skipper> {
-//   AsmGrammar() : AsmGrammar::base_type{line} {
-//     line = +qi::char_ - qi::eol;
-//     line.name("line");
-//     qi::debug(line);
-//   }
-//   qi::rule<Iterator, string(), Skipper> line;
-// };
-
 void print_mnemo(const char* mnemo) {
   cout << "DETECTED mnemo: " << mnemo << endl;
 }
@@ -135,7 +124,8 @@ int main() {
   cout << "-----------------" << endl;
 
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
-  string prog_fragment = "\n\n* = $c000\nSTA $a000\nSTA $e000\nLDA $ff\n";
+  string prog_fragment =
+      "\n\n* = $c000; comment 1\nSTA $a000\nSTA $e000\nLDA $ff\n";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
