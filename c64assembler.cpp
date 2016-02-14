@@ -64,6 +64,11 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
 
     instr_arg_implicit = qi::eps;
 
+    instr_arg_absolute_x = qi::char_('$') >> qi::hex >> qi::char_(',') >>
+                           qi::no_case[qi::char_('x')];
+    instr_arg_absolute_x.name("instr_arg_absolute_x");
+    qi::debug(instr_arg_absolute_x);
+
     instr_arg_absolute = qi::char_('$') >> qi::hex;
     instr_arg_absolute.name("instr_arg_absolute");
     qi::debug(instr_arg_absolute);
@@ -74,7 +79,8 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
 
     // instr_arg_implicit must be checked last, otherwise only the mnemonic
     // of an instruction with argument will be parsed
-    instr_arg = instr_arg_absolute | instr_arg_immediate | instr_arg_implicit;
+    instr_arg = instr_arg_absolute_x | instr_arg_absolute |
+                instr_arg_immediate | instr_arg_implicit;
 
     instr = mnemo >> instr_arg;
     instr.name("instr");
@@ -92,8 +98,8 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
   qi::rule<Iterator, Skipper> mnemo;
   qi::rule<Iterator, Skipper> addr_spec;
 
-  // e.g. INX
-  qi::rule<Iterator, Skipper> instr_arg_implicit;
+  // e.g. LDA $d000,X
+  qi::rule<Iterator, Skipper> instr_arg_absolute_x;
 
   // e.g. LDA $d000
   qi::rule<Iterator, Skipper> instr_arg_absolute;
@@ -101,6 +107,10 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
   // e.g. LDA #$d0
   // TODO enforce two digits or max 0xff
   qi::rule<Iterator, Skipper> instr_arg_immediate;
+
+  // e.g. INX
+  qi::rule<Iterator, Skipper> instr_arg_implicit;
+
   qi::rule<Iterator, Skipper> instr_arg;
 
   qi::rule<Iterator, Skipper> instr;
@@ -118,7 +128,7 @@ int main() {
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
   // string prog_fragment =
   //     "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
-  string prog_fragment = "* = $c000\nINX\nSTA $e000\nLDA $ff\n";
+  string prog_fragment = "* = $c000\nINX\nSTA $e000\nLDA $ff\nLDA $cfff, X";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
