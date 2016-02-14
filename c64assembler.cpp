@@ -69,6 +69,11 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
     instr_arg_absolute_x.name("instr_arg_absolute_x");
     qi::debug(instr_arg_absolute_x);
 
+    instr_arg_absolute_y = qi::char_('$') >> qi::hex >> qi::char_(',') >>
+                           qi::no_case[qi::char_('y')];
+    instr_arg_absolute_y.name("instr_arg_absolute_y");
+    qi::debug(instr_arg_absolute_y);
+
     instr_arg_absolute = qi::char_('$') >> qi::hex;
     instr_arg_absolute.name("instr_arg_absolute");
     qi::debug(instr_arg_absolute);
@@ -79,8 +84,8 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
 
     // instr_arg_implicit must be checked last, otherwise only the mnemonic
     // of an instruction with argument will be parsed
-    instr_arg = instr_arg_absolute_x | instr_arg_absolute |
-                instr_arg_immediate | instr_arg_implicit;
+    instr_arg = instr_arg_absolute_x | instr_arg_absolute_y |
+                instr_arg_absolute | instr_arg_immediate | instr_arg_implicit;
 
     instr = mnemo >> instr_arg;
     instr.name("instr");
@@ -100,6 +105,9 @@ struct AsmGrammar : public qi::grammar<Iterator, Skipper> {
 
   // e.g. LDA $d000,X
   qi::rule<Iterator, Skipper> instr_arg_absolute_x;
+
+  // e.g. LDA $d000,Y
+  qi::rule<Iterator, Skipper> instr_arg_absolute_y;
 
   // e.g. LDA $d000
   qi::rule<Iterator, Skipper> instr_arg_absolute;
@@ -128,7 +136,8 @@ int main() {
   // string prog_fragment = "LDA #$a0\nSTA $e000\nLDA $ff\n";
   // string prog_fragment =
   //     "\n\n* = $c000; comment 1\nSTA $a000; comment 2\nSTA $e000\nLDA $ff\n";
-  string prog_fragment = "* = $c000\nINX\nSTA $e000\nLDA $ff\nLDA $cfff, X";
+  string prog_fragment =
+      "* = $c000\nINX\nSTA $e000\nLDA $ff\nLDA $cfff, X\nLDA $ce00, Y";
   auto it = prog_fragment.begin();
   auto end = prog_fragment.end();
   string result_str;
