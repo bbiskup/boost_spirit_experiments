@@ -149,12 +149,14 @@ int main() {
 
   // bool match = qi::phrase_parse(it, end, g, sk, result_str);
 
-  bool match = qi::phrase_parse(it, end, g, sk, qi::skip_flag::postskip);
-  cout << "match? " << boolalpha << match << endl;
-  // cout << "result_str " << result_str << endl;
+  while (it != end) {
+    bool match = qi::phrase_parse(it, end, g, sk, qi::skip_flag::postskip);
+    cout << "match? " << boolalpha << match << endl;
+    // cout << "result_str " << result_str << endl;
 
-  cout << "Remaining (unparsed) text:" << endl;
-  if (it != end) {
-    std::cout << std::string{it, end} << std::endl;
+    cout << "Remaining (unparsed) text:" << endl;
+    if (it != end) {
+      std::cout << std::string{it, end} << std::endl;
+    }
   }
 }
